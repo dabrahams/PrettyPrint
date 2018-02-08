@@ -23,7 +23,7 @@ enum Token {
     /// The opening delimiter of a block.
     ///
     /// - Parameter: `offset` is the indent for this group.
-    /// - Paramter: `blankSpace` is the number of spaces per blank.
+    /// - Paramter: `breakType` TODO: consistent, inconsistent
     case begin(offset: Int, breakType: Break)
 
     /// The end delimiter of a block.
