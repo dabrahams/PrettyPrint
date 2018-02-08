@@ -36,7 +36,7 @@ enum Token {
 
     /// A required line break.
     static var linebreak: Token {
-        return .break(blankSpace: 1, offset: Int.max)
+        return .break(blankSpace: Int.max, offset: 0)
     }
 }
 
