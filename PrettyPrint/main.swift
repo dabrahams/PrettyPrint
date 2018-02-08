@@ -156,14 +156,12 @@ struct PrettyPrinter {
     // tokens until the elements in
     // `tokens` can fit on a line again.
     private mutating func checkStream() {
-        if rightTotal - leftTotal > space {
+        while rightTotal - leftTotal > space {
             if let bottom = scanStack.first, bottom == 0 {
                 sizes[scanStack.removeFirst()] = Int.max
             }
             advanceLeft(token: tokens.first!, length: sizes.first!)
-            if !tokens.isEmpty {
-                checkStream()
-            }
+            if tokens.isEmpty { break }
         }
     }
 
