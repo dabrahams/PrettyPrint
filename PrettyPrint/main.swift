@@ -417,6 +417,7 @@ extension Character {
 
 }
 
+/*
 var lines: [String] = []
 let args = CommandLine.arguments
 let path = CommandLine.arguments[1]
@@ -458,4 +459,6 @@ for arg in args[1...] {
 }
 
 print("Hello, World!")
+
+*/
 

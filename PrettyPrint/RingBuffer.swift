@@ -77,6 +77,6 @@ extension RingBuffer {
     }
 
     public mutating func removeAll() {
-        (left, right) = 0
+        (left, right) = (0, 0)
     }
 }
