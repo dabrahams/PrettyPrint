@@ -64,6 +64,18 @@ extension RingBuffer {
         return x
     }
 
+    public mutating func popLast(
+        where test: (Element)->Bool = { _ in true }) -> Element?
+    {
+        return last.map(test) == true ? removeLast() : nil
+    }
+    
+    public mutating func popFirst(
+        where test: (Element)->Bool = { _ in true }
+    ) -> Element? {
+        return first.map(test) == true ? removeFirst() : nil
+    }
+    
     public mutating func append(_ newElement: Element) {
         right = right + 1 % storage.count
         precondition(left != right, "Can't append. RingBuffer is full.")
