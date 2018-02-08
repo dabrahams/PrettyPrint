@@ -261,7 +261,7 @@ extension Character {
 
     var isBlank: Bool {
         switch self {
-        case Character.space, Character.tab, Character.vtab, Character.ffeed, Character.null, Character.lf, Character.cr, Character.crlf:
+        case .space, .tab, .vtab, .ffeed, .null, .lf, .cr, .crlf:
             return true
         default:
             return false
@@ -278,7 +278,7 @@ extension Character {
 
     var isOpenBlock: Bool {
         switch self {
-        case Character.lbrace, Character.lsquare, Character.lparen:
+        case .lbrace, .lsquare, .lparen:
             return true
         default:
             return false
@@ -287,7 +287,7 @@ extension Character {
 
     var isCloseBlock: Bool {
         switch self {
-        case Character.rbrace, Character.rsquare, Character.rparen:
+        case .rbrace, .rsquare, .rparen:
             return true
         default:
             return false
