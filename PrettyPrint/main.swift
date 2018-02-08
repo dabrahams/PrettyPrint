@@ -135,16 +135,6 @@ struct PrettyPrinter {
                 tokens.append(t)
                 sizes.append(s.count)
                 rightTotal += s.count
-
-                // The elements in `tokens` can't fit in the space remaining on
-                // this line. Force a break at the earliest opportunity (the
-                // bottom of `scanStack`) by setting its associated length to
-                // `Int.max`. Then start print tokens until the elements in
-                // `tokens` can fit on a line again.
-//                while rightTotal - leftTotal > space {
-//                    sizes[scanStack.removeFirst()] = Int.max
-//                    advanceLeft(token: tokens.first!, length: sizes.first!)
-//                }
                 checkStream()
             }
         }
@@ -181,7 +171,11 @@ struct PrettyPrinter {
 
     /// Finalizes sizes of tokens in zero or more consecutive matched
     /// `.begin`/`.end` groups, preceded by at most one `.break`, at the end of
-    /// a sequence of the buffered non-string tokens.
+    /// a sequence of the buffered, un-finalized, non-string tokens.
+    ///
+    /// If no matching `.begin` can be found for an `.end` in the
+    /// buffer (e.g. the `.begin` has already been flushed), all
+    /// un-finalized buffered tokens will be finalized.
     private mutating func checkStack() {
         var k = 0 // nesting level
         
@@ -253,144 +247,6 @@ struct PrettyPrinter {
         }
     }
 }
-
-//struct PrettyPrinter {
-//    enum Token {
-//        case string(String)
-//        case blank
-//        case openBlock
-//        case closeBlock
-//    }
-//
-//    var maxLineLength: Int
-//
-//    init(maxLineLength: Int = 80) {
-//        self.maxLineLength = maxLineLength
-//    }
-//
-//    mutating func printTokens(_ tokens: [Token]) -> String {
-//        return scanTokens(tokens)
-//    }
-//
-//    private mutating func scanTokens(_ tokens: [Token]) -> String {
-//        var result = ""
-//
-//        // A parallel array of `tokens` that stores each token's "associated
-//        // length".
-//        //
-//        // Each token case stores a different "associated length":
-//        // - `.string` is the length of the string.
-//        // - `.openBlock` is the length of the block it begins.
-//        // - `.closeBlock` is 0.
-//        // - `.blank` is 1 + the length of the next block.
-//        //
-//        // To compute the length for `.openBlock` and `.blank` requires
-//        // looking ahead.
-//        var tokenLengths = Array(repeatElement(0, count: tokens.count))
-//
-//        // A stack of indices to `.openBlock` or `.blank` tokens with
-//        // running "associated length" computations.
-//        var stack: [Int] = []
-//
-//        // The length required to print the block of `tokens[left...right]`.
-//        var rootBlockLength = 0
-//
-//        var left = 0
-//        for right in 0..<tokens.endIndex {
-//            let token = tokens[right]
-//            switch token {
-//            case .openBlock:
-//                if stack.isEmpty {
-//                    rootBlockLength = 1
-//                }
-//
-//                tokenLengths[right] = -rootBlockLength
-//                stack.append(right)
-//
-//            case .closeBlock:
-//                tokenLengths[right] = 0
-//
-//                // `i` is either:
-//                // - the index of the `.openBlock` starting the block.
-//                // - the index of the previous `.blank` (in which case `i - 1`
-//                //   is the index of the `.openBlock` starting the block).
-//                var i = stack.removeLast()
-//                tokenLengths[i] += rootBlockLength // so the blank gets length from the blank to the next closeBlock
-//                if case .blank = tokens[i] {
-//                    i = stack.removeLast()
-//                    tokenLengths[i] += rootBlockLength
-//                }
-//
-//                if stack.isEmpty {
-//                    while left <= right {
-//                        printToken(
-//                            tokens[left],
-//                            ofLength: tokenLengths[left],
-//                            to: &result
-//                        )
-//                        left += 1
-//                    }
-//                }
-//
-//            case .blank:
-//                // so the blank gets the length to the next blank
-//                if let i = stack.last, case .blank = tokens[i] {
-//                    tokenLengths[stack.removeLast()] += rootBlockLength
-//                }
-//
-//                tokenLengths[right] = -rootBlockLength
-//                stack.append(tokens.endIndex - 1)
-//                rootBlockLength += 1
-//
-//            case let .string(string):
-//                if stack.isEmpty {
-//                    printToken(token, ofLength: string.count, to: &result)
-//                } else {
-//                    let length = string.count
-//                    tokenLengths[right] = length
-//                    rootBlockLength += length
-//                }
-//            }
-//        }
-//    }
-//
-//    var indentLength = 4
-//    private var spaceStack: [Int] = []
-//
-//    // Each token case has a different "associated length":
-//    // - `.string` is the length of the string.
-//    // - `.openBlock` is the length of the block it begins.
-//    // - `.closeBlock` is 0.
-//    // - `.blank` is 1 + the length of the next block.
-//    //
-//    // `.string`s can't be broken, so print regardless of length
-//    // `.blank` checks if the next block can fit on the present line
-//    private mutating func printToken(
-//        _ token: Token, ofLength length: Int, to target: inout String, availableLineLength: inout Int,
-//    ) {
-//        switch token {
-//        case let .string(string):
-//            target += string
-//            availableLineLength -= length
-//        case .openBlock:
-//            spaceStack.append(availableLineLength)
-//        case .closeBlock:
-//            spaceStack.removeLast()
-//        case .blank:
-//            // if the next block can't fit on the line, start a new line and
-//            // indent.
-//            if length > availableLineLength {
-//                availableLineLength = spaceStack.last! - indentLength
-//                target += "\n"
-//                target.append(contentsOf: repeatElement(
-//                    " ", count: maxLineLength - availableLineLength))
-//            } else {
-//                target += " "
-//                availableLineLength -= 1
-//            }
-//        }
-//    }
-//}
 
 extension Character {
     // Cache character construction
