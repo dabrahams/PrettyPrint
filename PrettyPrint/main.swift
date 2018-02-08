@@ -38,6 +38,19 @@ enum Token {
     static var linebreak: Token {
         return .break(blankSpace: Int.max, offset: 0)
     }
+
+    var string: String? {
+        if case .string(let x) = self { return x }
+        return nil
+    }
+    var `break`: (blankSpace: Int, offset: Int)? {
+        if case .break(let x) = self { return x }
+        return nil
+    }
+    var begin: (offset: Int, breakType: Break)? {
+        if case .begin(let x) = self { return x }
+        return nil
+    }
 }
 
 enum PrintBreak {
