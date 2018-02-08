@@ -124,25 +124,31 @@ struct PrettyPrinter {
                 // bottom of `scanStack`) by setting its associated length to
                 // `Int.max`. Then start print tokens until the elements in
                 // `tokens` can fit on a line again.
-                while rightTotal - leftTotal > space {
-                    sizes[scanStack.removeFirst()] = Int.max
-                    advanceLeft(token: tokens.first!, length: sizes.first!)
-                }
+//                while rightTotal - leftTotal > space {
+//                    sizes[scanStack.removeFirst()] = Int.max
+//                    advanceLeft(token: tokens.first!, length: sizes.first!)
+//                }
+                checkStream()
             }
         }
     }
 
-//    private mutating func checkStream() {
-//        if rightTotal - leftTotal > space {
-//            if let bottom = scanStack.first, bottom == 0 {
-//                sizes[scanStack.removeFirst()] = Int.max
-//            }
-//            advanceLeft(token: tokens.first!, length: sizes.first!)
-//            if !tokens.isEmpty {
-//                checkStream()
-//            }
-//        }
-//    }
+    // If the elements in `tokens` can't fit in the space remaining on the
+    // current line, force a break at the earliest opportunity (the bottom of
+    // `scanStack`) by setting its associated length to `Int.max`. Then print
+    // tokens until the elements in
+    // `tokens` can fit on a line again.
+    private mutating func checkStream() {
+        if rightTotal - leftTotal > space {
+            if let bottom = scanStack.first, bottom == 0 {
+                sizes[scanStack.removeFirst()] = Int.max
+            }
+            advanceLeft(token: tokens.first!, length: sizes.first!)
+            if !tokens.isEmpty {
+                checkStream()
+            }
+        }
+    }
 
     /// Forces output from the left of the stream.
     private mutating func advanceLeft(token x: Token, length l: Int) {
