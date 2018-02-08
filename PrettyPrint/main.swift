@@ -90,12 +90,14 @@ struct PrettyPrinter {
         printStack = []
     }
 
-    public mutating func scanToken(_ token: Token) {
-        switch token {
+    public mutating func scanToken(_ t: Token) {
+        switch t {
         case .eof:
             if !scanStack.isEmpty {
                 checkStack(0)
+                advanceLeft(token: tokens.first!, length: sizes.first!)
             }
+            indent(0)
         case .begin:
             if scanStack.isEmpty {
                 (leftTotal, rightTotal) = (1, 1)
@@ -103,32 +105,34 @@ struct PrettyPrinter {
                 sizes.removeAll() // this isn't in scan psuedo code
             } else {
                 scanStack.append(tokens.endIndex)
-                tokens.append(token)
+                tokens.append(t)
                 sizes.append(-rightTotal)
             }
         case .end:
             if scanStack.isEmpty {
-                printToken(token, length: 0)
+                printToken(t, length: 0)
             } else {
                 scanStack.append(tokens.endIndex)
-                tokens.append(token)
-                sizes.append(-1) // -1 or 0?
+                tokens.append(t)
+                sizes.append(-1)
             }
         case let .break(blankSpace, _):
             if scanStack.isEmpty {
                 (leftTotal, rightTotal) = (1, 1)
+                tokens.removeAll() // this isn't in scan psuedo code
+                sizes.removeAll() // this isn't in scan psuedo code
             } else {
                 checkStack(0)
                 scanStack.append(tokens.endIndex)
-                tokens.append(token)
+                tokens.append(t)
                 sizes.append(-rightTotal)
                 rightTotal += blankSpace
             }
         case let .string(s):
             if scanStack.isEmpty {
-                printToken(token, length: s.count)
+                printToken(t, length: s.count)
             } else {
-                tokens.append(token)
+                tokens.append(t)
                 sizes.append(s.count)
                 rightTotal += s.count
 
@@ -222,7 +226,7 @@ struct PrettyPrinter {
                 printStack.append((0, .fits))
             }
         case .end:
-            // C1 = printStack.removeLast() // ???
+            printStack.removeLast()
         case let .break(blankSpace, offset):
             switch printStack.last!.break {
             case .fits:
@@ -241,6 +245,7 @@ struct PrettyPrinter {
                 }
             }
         case let .string(string):
+            // TODO: do we need to handle a string longer than lineWidth here?
             assert(l <= space, "Line too long")
             space -= l
             printString(string)
