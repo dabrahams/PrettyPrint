@@ -94,7 +94,7 @@ struct PrettyPrinter {
         switch t {
         case .eof:
             if !scanStack.isEmpty {
-                checkStack(0)
+                checkStack()
                 advanceLeft(token: tokens.first!, length: sizes.first!)
             }
             indent(0)
@@ -122,7 +122,7 @@ struct PrettyPrinter {
                 tokens.removeAll() // this isn't in scan psuedo code
                 sizes.removeAll() // this isn't in scan psuedo code
             } else {
-                checkStack(0)
+                checkStack()
                 scanStack.append(tokens.endIndex)
                 tokens.append(t)
                 sizes.append(-rightTotal)
@@ -182,23 +182,25 @@ struct PrettyPrinter {
         }
     }
 
-    private mutating func checkStack(_ k: Int) {
-        if let x = scanStack.last {
-            switch tokens[x] {
+    /// Finalizes sizes of tokens in zero or more consecutive matched
+    /// `.begin`/`.end` groups, preceded by at most one `.break`, at the end of
+    /// a sequence of the buffered non-string tokens.
+    private mutating func checkStack() {
+        var k = 0 // nesting level
+        
+        while let i = scanStack.popLast() {
+            switch tokens[i] {
             case .begin:
-                if k > 0 {
-                    scanStack.removeLast()
-                    sizes[x] += rightTotal
-                    checkStack(k - 1)
-                }
+                if k == 0 { scanStack.append(i); return }
+                sizes[i] += rightTotal
+                k -= 1
             case .end:
-                scanStack.removeLast()
-                sizes[x] + 1; // ???
-                checkStack(k + 1)
+                sizes[i] += 1
+                k += 1
             default:
-                scanStack.removeLast()
-                sizes[x] += rightTotal
-                if k > 0 { checkStack(k) }
+                assert(tokens[i].break != nil) // sanity check
+                sizes[i] += rightTotal
+                if k == 0 { return }
             }
         }
     }
