@@ -250,14 +250,14 @@ struct PrettyPrinter {
 
 extension Character {
     // Cache character construction
-    static let space = Character(" ")
-    static let tab = Character("\t")
-    static let vtab = Character("\u{000B}")
-    static let ffeed = Character("\u{000C}")
-    static let null = Character("\0")
-    static let lf = Character("\n")
-    static let cr = Character("\r")
-    static let crlf = Character("\r\n")
+    static let space = " " as Character
+    static let tab = "\t" as Character
+    static let vtab = "\u{000B}" as Character
+    static let ffeed = "\u{000C}" as Character
+    static let null = "\0" as Character
+    static let lf = "\n" as Character
+    static let cr = "\r" as Character
+    static let crlf = "\r\n" as Character
 
     var isBlank: Bool {
         switch self {
@@ -269,12 +269,12 @@ extension Character {
     }
 
     // Cache character construction
-    static let lbrace = Character("{")
-    static let rbrace = Character("}")
-    static let lsquare = Character("[")
-    static let rsquare = Character("]")
-    static let lparen = Character("(")
-    static let rparen = Character(")")
+    static let lbrace = "{" as Character
+    static let rbrace = "}" as Character
+    static let lsquare = "[" as Character
+    static let rsquare = "]" as Character
+    static let lparen = "(" as Character
+    static let rparen = ")" as Character
 
     var isOpenBlock: Bool {
         switch self {
