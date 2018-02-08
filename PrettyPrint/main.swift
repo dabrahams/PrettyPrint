@@ -95,7 +95,7 @@ struct PrettyPrinter {
         case .eof:
             if !scanStack.isEmpty {
                 checkStack()
-                advanceLeft(token: tokens.first!, length: sizes.first!)
+                advanceLeft()
             }
             indent(0)
         case .begin:
@@ -160,23 +160,22 @@ struct PrettyPrinter {
             if let bottom = scanStack.first, bottom == 0 {
                 sizes[scanStack.removeFirst()] = Int.max
             }
-            advanceLeft(token: tokens.first!, length: sizes.first!)
+            advanceLeft()
             if tokens.isEmpty { break }
         }
     }
 
-    /// Forces output from the left of the stream.
-    private mutating func advanceLeft(token x: Token, length l: Int) {
-        if l >= 0 {
+    /// Print all finalized tokens at the left of the buffer.
+    private mutating func advanceLeft() {
+        assert(!sizes.isEmpty) // sanity check
+        
+        while let l = sizes.first, l >= 0 {
+            let x = tokens.removeFirst()
+            sizes.removeFirst()
+            
             printToken(x, length: l)
-            switch x {
-            case let .break(blankSpace, _): leftTotal += blankSpace
-            case .string: leftTotal += l
-            default: break
-            }
-            if !tokens.isEmpty {
-                advanceLeft(token: tokens.removeFirst(), length: sizes.removeFirst())
-            }
+
+            leftTotal += x.break?.blankSpace ?? x.string.map { _ in l } ?? 0
         }
     }
 
